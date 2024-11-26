@@ -9,7 +9,7 @@ public class NMaze {
     }
 
     public boolean Peek(int x, int y){
-        return !(physical_space[y][x] == 1);
+        return x!=size && y!= size && !(physical_space[y][x] == 1);
     }
 
     public boolean isDeadEnd(int x, int y){
