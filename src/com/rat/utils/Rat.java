@@ -22,7 +22,7 @@ public class Rat implements Callable<int[]> {
     public int[] call() {
         while(!this.maze.isDeadEnd(this.currentX, this.currentY)){
             if (this.maze.isFork(this.currentX, this.currentY)){
-                return new int[]{this.currentX, this.currentY, 2};
+                return new int[]{this.currentX, this.currentY, 2, 0};
             } else if (this.maze.Peek(currentX+1, currentY)){
                 this.currentX +=1;
             }else {
@@ -30,9 +30,9 @@ public class Rat implements Callable<int[]> {
             }
         }
         if (this.maze.isSolved(currentX, currentY)){
-            return new int[]{this.currentX, this.currentY, 1};
+            return new int[]{this.currentX, this.currentY, 1,0};
         }else{
-            return new int[]{this.currentX, this.currentY, 0};
+            return new int[]{this.currentX, this.currentY, 0,0};
         }
     }
 }

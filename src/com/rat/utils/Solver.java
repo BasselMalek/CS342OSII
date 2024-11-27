@@ -1,25 +1,30 @@
 package com.rat.utils;
+
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solver {
-
-    int solutions;
-    List<List<Integer>> Mice;
+    AtomicInteger solutions;
+    ConcurrentLinkedQueue<Future<int[]>> Mice;
     int lastMouseId;
     NMaze maze;
     List<List<List<Integer>>> solutionPaths;
 
-    public Solver(NMaze maze){
-        this.solutions = 0;
+    public Solver(NMaze maze) {
+        this.solutions = new AtomicInteger(0);
         this.solutionPaths = new ArrayList<>();
-        this.Mice = new ArrayList<>();
+        this.Mice = new ConcurrentLinkedQueue<>();
         this.maze = maze;
     }
 
-    public int solve() throws ExecutionException, InterruptedException {
-        ExecutorService ratSpawner = Executors.newFixedThreadPool(16);
-        Mice.add(Arrays.stream(ratSpawner.submit(new Rat(0, 0, this.maze)).get()).boxed().toList());
-        return this.Mice.get(0).get(2);
+    public int solve(){
+
+    return this.solutions.intValue();
+    }
+
+    public List<List<List<Integer>>> getSolutionPaths(){
+
+        return this.solutionPaths;
     }
 }
