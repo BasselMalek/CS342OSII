@@ -30,7 +30,7 @@ public class NMaze {
         this.mazeFrontier = new ConcurrentLinkedQueue<>();
         this.mazeFrontier.add(new ArrayList<Integer>(List.of(0, 0, 0)));
         this.availablePaths = new Semaphore(1);
-        this.solutionPaths = new ArrayList<>();
+        this.solutionPaths = new ArrayList<>(List.of(new ArrayList<>(), new ArrayList<>()));
         this.lastMouseId = 0;
     }
 
@@ -45,9 +45,14 @@ public class NMaze {
         return this.solutions.intValue();
     }
 
-    public ArrayList<ArrayList<ArrayList<Integer>>> getSolutionPaths() {
-
-        return this.solutionPaths;
+    public void getSolutionPaths() {
+        this.solutionPaths.stream().forEach((ArrayList<ArrayList<Integer>> mouseList)->{
+            System.out.print(mouseList.getFirst().getLast() + ": ");
+           mouseList.stream().forEach((ArrayList<Integer> mouseStep)->{
+            System.out.print("(" +mouseStep.getFirst() + ", " + mouseStep.get(1) + ") -> ");
+           });
+        System.out.println("X");
+        });
     }
 
 

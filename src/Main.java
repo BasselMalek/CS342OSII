@@ -20,7 +20,7 @@ public class Main {
         };
         NMaze maze = new NMaze(mazeSize, mazeSpace);
         System.out.println(maze.solve());
-
+        maze.getSolutionPaths();
     }
 }
     
