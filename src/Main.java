@@ -1,24 +1,26 @@
-import com.rat.utils.NMaze;
-import com.rat.utils.Solver;
+import com.rat.utils.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-    int size = 8;
-        int[][] oneSolOneDeadMaze = {
-                {0, 0, 0, 1, 1, 1, 1, 1},
-                {1, 1, 0, 1, 1, 1, 1, 1},
-                {1, 1, 0, 1, 1, 1, 1, 1},
-                {1, 1, 0, 0, 0, 0, 1, 1},
-                {1, 1, 0, 1, 1, 0, 0, 0},
-                {1, 1, 0, 1, 1, 0, 1, 1},
-                {1, 1, 0, 0, 0, 0, 0, 0},
-                {1, 1, 0, 0, 0, 0, 0, 0}
+        int mazeSize = 8;
+        int[][] mazeSpace = {
+                {1, 1, 1, 0, 0, 0, 0, 0},
+                {0, 0, 1, 0, 0, 0, 0, 0},
+                {0, 0, 1, 0, 0, 0, 0, 0},
+                {0, 0, 1, 1, 1, 1, 0, 0},
+                {0, 0, 1, 0, 0, 1, 1, 1},
+                {0, 0, 1, 0, 0, 1, 0, 0},
+                {0, 0, 1, 1, 1, 1, 1, 1},
+                {0, 0, 0, 0, 0, 0, 0, 1}
         };
-        NMaze maze = new NMaze(size, oneSolOneDeadMaze);
-        Solver oneSolSolver = new Solver(maze);
-        System.out.println(oneSolSolver.solve());
+        NMaze maze = new NMaze(mazeSize, mazeSpace);
+        System.out.println(maze.solve());
 
     }
 }
+    
