@@ -10,6 +10,31 @@ import com.rat.utils.*;
 class MazeTest {
 
     @Test
+    @DisplayName("One n maze open.")
+    void testOneNOpen(){
+        int[][] maze = {{1}};
+        NMaze mazeSolver = new NMaze(1, maze);
+        assertDoesNotThrow(() -> {
+            assertEquals(1, mazeSolver.solve());
+            ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
+            validateSolutionPath(solutionPath, maze);
+        });
+    }
+
+
+//    @Test
+//    @DisplayName("One n maze closed.")
+//    void testOneNClosed(){
+//        int[][] maze = {{0}};
+//        NMaze mazeSolver = new NMaze(1, maze);
+//        assertDoesNotThrow(() -> {
+//            assertEquals(0, mazeSolver.solve());
+//            ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
+//            validateSolutionPath(solutionPath, maze);
+//        });
+//    }
+
+    @Test
     @DisplayName("Multiple dead-ends with only one valid path to the goal")
     void testMultipleDeadEnds() {
         int[][] maze = {

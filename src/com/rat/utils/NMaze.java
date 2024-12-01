@@ -3,65 +3,74 @@ package com.rat.utils;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class NMaze {
-    Integer size;
-    int[][] physicalSpace;
-    final List<ArrayList<Integer>> physicalProgress;
+    //Physical properties.
+    Integer mazeSize;
+    int[][] mazeSpace;
+
+    //Pathfinding.
     Semaphore availablePaths;
-    AtomicInteger solutions;
+    int stampId;
+    ThreadPoolExecutor miceManger;
     ConcurrentHashMap<Integer, ArrayList<Integer>> mazeFrontier;
     ConcurrentHashMap<String, Boolean> mazeSkip;
-    ThreadPoolExecutor miceManger;
-    int stampId;
-    ArrayList<ArrayList<ArrayList<Integer>>> solutionPaths;
-    boolean allowRevisitWhenDead;
+
+    //Solution Storage.
+    AtomicInteger solutions;
     int mouseKing;
+    ArrayList<ArrayList<ArrayList<Integer>>> solutionPaths;
+
 
     public NMaze(int size, int[][] physical) {
-        this.allowRevisitWhenDead = false;
-        this.size = size;
-        this.physicalSpace = physical;
-        this.physicalProgress = Arrays.stream(physical)
-                .map(row -> Arrays.stream(row)
-                        .boxed()
-                        .collect(Collectors.toCollection(ArrayList::new)))
-                .collect(Collectors.toCollection(ArrayList::new));
-        this.solutions = new AtomicInteger(0);
+        this.mazeSize = size;
+        this.mazeSpace = physical;
+
+        this.availablePaths = new Semaphore(1);
+        this.stampId = 0;
         this.mazeFrontier = new ConcurrentHashMap<>();
         this.mazeFrontier.put(0, new ArrayList<Integer>(List.of(0, 0)));
         this.mazeSkip = new ConcurrentHashMap<>();
-        this.availablePaths = new Semaphore(1);
+
+        this.solutions = new AtomicInteger(0);
         this.solutionPaths = new ArrayList<>(30);
-        this.stampId = 0;
         this.mouseKing = -1;
     }
 
     synchronized public int solve() throws InterruptedException {
+        //Spawn first mouse at (0,0) TODO: need to check if (0,0) is 0 and throw an error or something.
         this.miceManger = new ThreadPoolExecutor(8, 16, 200, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         this.miceManger.submit(new Rat(this.stampId, this));
         this.stampId += 1;
 
-        while (miceManger.getActiveCount() > 0) {
-            Thread.sleep(5000);
+        while (this.miceManger.getActiveCount() > 0) {
+            Thread.sleep(3);
         }
         this.miceManger.shutdown();
-        return this.solutions.intValue();
+        if (this.miceManger.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+            return this.solutions.intValue();
+        } else {
+            throw new InterruptedException("Threads exceeded timeout.");
+        }
     }
 
-    public void getSolutionPaths() {
-        this.solutionPaths.stream().forEach((ArrayList<ArrayList<Integer>> mouseList) -> {
+    public ArrayList<ArrayList<ArrayList<Integer>>> getSolutionPaths() {
+        return this.solutionPaths;
+    }
+
+    public ArrayList<ArrayList<Integer>> getSolutionPath() {
+        return this.mouseKing == -1 ? new ArrayList<>() : this.solutionPaths.get(this.mouseKing);
+    }
+
+    public void printSolutionPaths() {
+        this.solutionPaths.forEach((ArrayList<ArrayList<Integer>> mouseList) -> {
             System.out.print(mouseList.getFirst().getLast() + ": ");
-            mouseList.stream().forEach((ArrayList<Integer> mouseStep) -> {
+            mouseList.forEach((ArrayList<Integer> mouseStep) -> {
                 System.out.print("(" + mouseStep.getFirst() + ", " + mouseStep.get(1) + ") -> ");
             });
             System.out.println("X");
         });
     }
-public ArrayList<ArrayList<Integer>> getSolutionPath() {
-    return this.mouseKing == -1 ? new ArrayList<>() : this.solutionPaths.get(this.mouseKing);
-}
 
     public void printSolutionPath() {
         ArrayList<ArrayList<Integer>> mouseList = this.getSolutionPath();
@@ -69,37 +78,29 @@ public ArrayList<ArrayList<Integer>> getSolutionPath() {
             System.out.print("(" + mouseStep.getFirst() + ", " + mouseStep.get(1) + ") -> ");
         });
         System.out.println("X");
-    };
-
-
-public ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
-    ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-    result.add(new ArrayList<>(List.of(0, 0)));
-    result.add(new ArrayList<>(List.of(0, 0)));
-    String rightKey = (x + 1) + "," + y;
-    String downKey = x + "," + (y + 1);
-    boolean rightIsEffectiveOpen = x + 1 < this.size && this.physicalSpace[y][x + 1] == 1 && this.mazeSkip.get(rightKey) == null;
-    boolean downIsEffectiveOpen = y + 1 < this.size && this.physicalSpace[y + 1][x] == 1 && this.mazeSkip.get(downKey) == null;
-//        boolean rightIsEffectiveOpen = (rightState == 1 || ((rightState == 2 && downState == 0) && allowRevisitWhenDead));
-//        boolean downIsEffectiveOpen = (downState == 1 || ((downState == 2 && rightState == 0 ) && allowRevisitWhenDead));
-//            boolean rightIsEffectiveOpen = (rightState == 1);
-//            boolean downIsEffectiveOpen = (downState == 1);
-    if (rightIsEffectiveOpen) {
-        result.set(0, new ArrayList<>(List.of(x + 1, y)));
-
     }
-    if (downIsEffectiveOpen) {
-        result.set(1, new ArrayList<>(List.of(x, y + 1)));
+
+
+    protected  ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
+        synchronized (this.mazeSkip){
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>(List.of(new ArrayList<>(List.of(0, 0)), new ArrayList<>(List.of(0, 0))));
+        boolean rightIsEffectiveOpen = x + 1 < this.mazeSize && this.mazeSpace[y][x + 1] == 1 && this.mazeSkip.get((x + 1) + "," + y) == null;
+        boolean downIsEffectiveOpen = y + 1 < this.mazeSize && this.mazeSpace[y + 1][x] == 1 && this.mazeSkip.get(x + "," + (y + 1)) == null;
+        if (rightIsEffectiveOpen) {
+            result.set(0, new ArrayList<>(List.of(x + 1, y)));
+        }
+        if (downIsEffectiveOpen) {
+            result.set(1, new ArrayList<>(List.of(x, y + 1)));
+        }
+        return result;}
     }
-    return result;
-}
 
 
-public void signalFork() {
-    this.availablePaths.release();
-    this.miceManger.submit(new Rat(this.stampId, this));
-    this.stampId += 1;
-}
+    protected void signalFork() {
+        this.availablePaths.release();
+        this.miceManger.submit(new Rat(this.stampId, this));
+        this.stampId += 1;
+    }
 
 
 }
