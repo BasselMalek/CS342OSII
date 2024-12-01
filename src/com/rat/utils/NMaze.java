@@ -17,6 +17,7 @@ public class NMaze {
     int stampId;
     ArrayList<ArrayList<ArrayList<Integer>>> solutionPaths;
     boolean allowRevisitWhenDead;
+    int mouseKing;
 
     public NMaze(int size, int[][] physical) {
         this.allowRevisitWhenDead = false;
@@ -34,6 +35,7 @@ public class NMaze {
         this.availablePaths = new Semaphore(1);
         this.solutionPaths = new ArrayList<>(30);
         this.stampId = 0;
+        this.mouseKing = -1;
     }
 
     synchronized public int solve() throws InterruptedException {
@@ -57,48 +59,48 @@ public class NMaze {
             System.out.println("X");
         });
     }
+public ArrayList<ArrayList<Integer>> getSolutionPath() {
+    return this.mouseKing == -1 ? new ArrayList<>() : this.solutionPaths.get(this.mouseKing);
+}
+
+    public void printSolutionPath() {
+        ArrayList<ArrayList<Integer>> mouseList = this.getSolutionPath();
+        mouseList.forEach((ArrayList<Integer> mouseStep) -> {
+            System.out.print("(" + mouseStep.getFirst() + ", " + mouseStep.get(1) + ") -> ");
+        });
+        System.out.println("X");
+    };
 
 
-    public ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
-            ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-            result.add(new ArrayList<>(List.of(0, 0)));
-            result.add(new ArrayList<>(List.of(0, 0)));
-            String rightKey = (x + 1) + "," + y;
-            String downKey = x + "," + (y + 1);
-            boolean rightIsEffectiveOpen = x + 1 < this.size && this.physicalSpace[y][x+1] == 1 && this.mazeSkip.get(rightKey) == null;
-            boolean downIsEffectiveOpen = y + 1 < this.size && this.physicalSpace[y+1][x] == 1 && this.mazeSkip.get(downKey) == null;
+public ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
+    ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+    result.add(new ArrayList<>(List.of(0, 0)));
+    result.add(new ArrayList<>(List.of(0, 0)));
+    String rightKey = (x + 1) + "," + y;
+    String downKey = x + "," + (y + 1);
+    boolean rightIsEffectiveOpen = x + 1 < this.size && this.physicalSpace[y][x + 1] == 1 && this.mazeSkip.get(rightKey) == null;
+    boolean downIsEffectiveOpen = y + 1 < this.size && this.physicalSpace[y + 1][x] == 1 && this.mazeSkip.get(downKey) == null;
 //        boolean rightIsEffectiveOpen = (rightState == 1 || ((rightState == 2 && downState == 0) && allowRevisitWhenDead));
 //        boolean downIsEffectiveOpen = (downState == 1 || ((downState == 2 && rightState == 0 ) && allowRevisitWhenDead));
 //            boolean rightIsEffectiveOpen = (rightState == 1);
 //            boolean downIsEffectiveOpen = (downState == 1);
-            if (rightIsEffectiveOpen) {
-                result.set(0, new ArrayList<>(List.of(x + 1, y)));
-            }
-            if (downIsEffectiveOpen) {
-                result.set(1, new ArrayList<>(List.of(x, y + 1)));
-            }
-            return result;
+    if (rightIsEffectiveOpen) {
+        result.set(0, new ArrayList<>(List.of(x + 1, y)));
+
     }
-
-
-    public void signalFork() {
-        this.availablePaths.release();
-//        ArrayList<Integer> newStart = this.mazeFrontier.poll();
-        this.miceManger.submit(new Rat(this.stampId, this));
-        this.stampId += 1;
+    if (downIsEffectiveOpen) {
+        result.set(1, new ArrayList<>(List.of(x, y + 1)));
     }
+    return result;
+}
 
-//    public boolean isDeadEnd(int x, int y) {
-//        return !((this.peekFrom(x + 1, y) || this.peekFrom(x, y + 1)));
-//    }
-//
-//    public boolean isFork(int x, int y) {
-//        return (this.peekFrom(x + 1, y) && this.peekFrom(x, y + 1));
-//
-//    }
-//
-//    public boolean isSolved(int x, int y) {
-//        return x == size - 1 && y == size - 1;
-//    }
+
+public void signalFork() {
+    this.availablePaths.release();
+    this.miceManger.submit(new Rat(this.stampId, this));
+    this.stampId += 1;
+}
+
+
 }
 

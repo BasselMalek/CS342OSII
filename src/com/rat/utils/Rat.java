@@ -35,6 +35,10 @@ public class Rat implements Callable<int[]> {
             ArrayList<ArrayList<Integer>> peekResult = maze.peekFrom(current.get(0), current.get(1));
 //            System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
             if (peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {
+                if (this.currentX == this.maze.size-1 && this.currentY == this.maze.size-1){
+                    this.maze.solutions.incrementAndGet();
+                    this.maze.mouseKing = this.mouseId;
+                }
 //                System.out.println("Dead-end at (" + current.get(0) + ", " + current.get(1) + ").");
                 return new int[]{0, 0};
             } else if (!peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && !peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {

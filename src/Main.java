@@ -9,18 +9,18 @@ public class Main {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         int mazeSize = 8;
         int[][] mazeSpace = {
-                {1, 1, 1, 0, 0, 0, 0, 0},
-                {0, 0, 1, 0, 0, 0, 0, 0},
-                {0, 0, 1, 0, 0, 0, 0, 0},
-                {0, 0, 1, 1, 1, 1, 0, 0},
-                {0, 0, 1, 0, 0, 1, 1, 1},
-                {0, 0, 1, 0, 0, 1, 0, 0},
-                {0, 0, 1, 1, 1, 1, 1, 1},
-                {0, 0, 0, 0, 0, 0, 0, 1}
+                {1, 1, 0, 0, 0, 0, 0, 0},
+                {0, 1, 1, 1, 0, 0, 0, 0},
+                {0, 0, 0, 1, 0, 0, 0, 0},
+                {0, 0, 0, 1, 1, 1, 0, 0},
+                {0, 0, 0, 0, 0, 1, 0, 0},
+                {0, 0, 1, 1, 1, 1, 1, 0},
+                {0, 0, 1, 0, 0, 0, 1, 1},
+                {0, 0, 1, 1, 1, 1, 1, 1}
         };
         NMaze maze = new NMaze(mazeSize, mazeSpace);
         System.out.println(maze.solve());
-        maze.getSolutionPaths();
+        maze.printSolutionPath();
     }
 }
     
