@@ -30,22 +30,34 @@ public class Rat implements Callable<int[]> {
             ArrayList<Integer> current = maze.mazeFrontier.poll();
             synchronized (this.maze.physicalProgress) {
                 this.maze.physicalProgress.get(current.get(1)).set(current.get(0), 2);
+//                System.out.println("  0 1 2 3 4 5 6 7");
+//                for (int i = 0; i < 8; i++) {
+//                    System.out.print(i + " ");
+//                    for (int j = 0; j < 8; j++) {
+//                        if (i == current.get(1) && j == current.get(0)) {
+//                            System.out.print(this.maze.physicalProgress.get(i).get(j) + "<");
+//                        } else {
+//                            System.out.print(this.maze.physicalProgress.get(i).get(j) + " ");
+//                        }
+//                    }
+//                        System.out.println();
+//                }
             }
             ArrayList<ArrayList<Integer>> peekResult = maze.peekFrom(current.get(0), current.get(1), this.mouseId, false);
-            System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
-            if (this.maze.solutionPaths.get(this.mouseId) != null) {
+//            System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
+            try {
                 this.maze.solutionPaths.get(this.mouseId).add(current);
-            } else {
-                this.maze.solutionPaths.set(this.mouseId, new ArrayList<>());
+            } catch (Exception e){
+                this.maze.solutionPaths.add(this.mouseId, new ArrayList<>());
                 this.maze.solutionPaths.get(this.mouseId).add(current);
             }
             if (peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0, this.mouseId))) && peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0, this.mouseId)))) {
-                System.out.println("Dead-end at (" + current.get(0) + ", " + current.get(1) + ").");
+//                System.out.println("Dead-end at (" + current.get(0) + ", " + current.get(1) + ").");
                 return new int[]{0, 0};
             } else if (!peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0, this.mouseId))) && !peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0, this.mouseId)))) {
-                System.out.println("Fork at (" + current.get(0) + ", " + current.get(1) + ").");
+//                System.out.println("Fork at (" + current.get(0) + ", " + current.get(1) + ").");
                 maze.mazeFrontier.add(peekResult.get(0));
-                peekResult.get(1).set(2, this.mouseId + 1);
+                peekResult.get(1).set(2, this.maze.stampId);
                 maze.mazeFrontier.add(peekResult.get(1));
                 this.maze.availablePaths.release();
                 this.maze.signalFork();

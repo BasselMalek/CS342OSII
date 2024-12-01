@@ -13,7 +13,7 @@ public class NMaze {
     AtomicInteger solutions;
     ConcurrentLinkedQueue<ArrayList<Integer>> mazeFrontier;
     ThreadPoolExecutor miceManger;
-    int lastMouseId;
+    int stampId;
     ArrayList<ArrayList<ArrayList<Integer>>> solutionPaths;
     boolean allowRevisitWhenDead;
 
@@ -30,13 +30,14 @@ public class NMaze {
         this.mazeFrontier = new ConcurrentLinkedQueue<>();
         this.mazeFrontier.add(new ArrayList<Integer>(List.of(0, 0, 0)));
         this.availablePaths = new Semaphore(1);
-        this.solutionPaths = new ArrayList<>(List.of(new ArrayList<>(), new ArrayList<>()));
-        this.lastMouseId = 0;
+        this.solutionPaths = new ArrayList<>(30);
+        this.stampId = 0;
     }
 
     synchronized public int solve() throws InterruptedException {
         this.miceManger = new ThreadPoolExecutor(8, 16, 200, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
-        this.miceManger.submit(new Rat(this.lastMouseId++, this));
+        this.miceManger.submit(new Rat(this.stampId, this));
+        this.stampId+=1;
 
         while (miceManger.getActiveCount() > 0) {
             Thread.sleep(5000);
@@ -82,8 +83,8 @@ public class NMaze {
     public void signalFork() {
         this.availablePaths.release();
 //        ArrayList<Integer> newStart = this.mazeFrontier.poll();
-        this.miceManger.submit(new Rat(this.lastMouseId++, this));
-
+        this.miceManger.submit(new Rat(this.stampId, this));
+        this.stampId+=1;
     }
 
 //    public boolean isDeadEnd(int x, int y) {
