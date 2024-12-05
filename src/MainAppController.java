@@ -1,7 +1,8 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.TextField;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -13,6 +14,8 @@ import javafx.scene.text.Text;
 public class MainAppController {
     @FXML
     private AnchorPane gridPanel;
+    @FXML
+    private TextField gridSizeInput;
     private Integer gridSize = 0;
 
     public void onReset(ActionEvent actionEvent) {
@@ -21,6 +24,7 @@ public class MainAppController {
     }
 
     public void onGenerate(ActionEvent actionEvent) {
+        this.gridSize = Integer.valueOf(gridSizeInput.getText());
         if (this.gridSize <= 0) {
             System.out.println("Grid cannot be 0x0.");
             return;
@@ -69,14 +73,14 @@ public class MainAppController {
     }
 
 
-    public void onRun(ActionEvent actionEvent) {
-    }
-
-    public void onGridSizeChange(KeyEvent inputMethodEvent) {
-        try {
-            gridSize = Integer.valueOf(inputMethodEvent.getCharacter());
-        } catch (NumberFormatException e) {
-
+    public void onRun(ActionEvent actionEvent) throws InterruptedException {
+        GridPane grid = (GridPane) this.gridPanel.getChildren().getFirst();
+        for (int i = 1; i<this.gridSize+1;i++){
+            for (int j = 0; j < this.gridSize*2; j++) {
+                if (grid.getChildren().get(i*this.gridSize+j).getClass() == Rectangle.class){
+                Rectangle r = (Rectangle) grid.getChildren().get(i*this.gridSize+j);
+                r.setFill(Color.LAVENDER);}
+            }
         }
     }
 }
