@@ -49,7 +49,7 @@
                                 <AnchorPane>
                                     <children>
                                         <Label layoutX="14.0" layoutY="14.0" text="Grid Size" />
-                                        <TextField fx:id="gridSizeInput" layoutX="15.0" layoutY="32.0" prefHeight="26.0" prefWidth="158.0" />
+                                        <TextField fx:id="gridSizeInput" layoutX="15.0" layoutY="32.0" onKeyTyped="#onGridSizeChange" prefHeight="26.0" prefWidth="158.0" />
                                         <Button fx:id="resetButton" layoutX="15.0" layoutY="71.0" onAction="#onReset" text="Reset" />
                                         <Button fx:id="generateButton" layoutX="67.0" layoutY="71.0" onAction="#onGenerate" text="Generate" />
                                         <Button fx:id="runButton" layoutX="138.0" layoutY="71.0" onAction="#onRun" text="Run" />
