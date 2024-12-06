@@ -27,8 +27,6 @@ public class NMaze {
     Boolean isRunningInRealTime;
     Rectangle[][] uiNodes;
     Integer realTimeStep;
-    Boolean externalRunFlag;
-    BlockingQueue<ArrayList<Integer>> externalNodeDelivery;
 
     public NMaze(int size, int[][] physical) {
         this.mazeSize = size;
@@ -45,20 +43,39 @@ public class NMaze {
         this.mouseKing = -1;
     }
 
-    public void setRealTime(Boolean setVal){
+    public void setRealTime(Boolean setVal) {
         this.isRunningInRealTime = setVal;
     }
-    public void setRealTimeParams(Integer realTimeStep, Boolean runFlag, Rectangle[][] uiNodes){
+
+    public void setRealTimeParams(Integer realTimeStep, Rectangle[][] uiNodes) {
         this.realTimeStep = realTimeStep;
-        this.externalRunFlag = runFlag;
         this.uiNodes = uiNodes;
     }
 
-    synchronized public int solve() throws InterruptedException {
-        if (this.isRunningInRealTime){
-            this.externalRunFlag = true;
+    //Pathfinding logic.
+    protected ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
+        synchronized (this.mazeSkip) {
+            ArrayList<ArrayList<Integer>> result = new ArrayList<>(List.of(new ArrayList<>(List.of(0, 0)), new ArrayList<>(List.of(0, 0))));
+            boolean rightIsEffectiveOpen = x + 1 < this.mazeSize && this.mazeSpace[y][x + 1] == 1 && this.mazeSkip.get((x + 1) + "," + y) == null;
+            boolean downIsEffectiveOpen = y + 1 < this.mazeSize && this.mazeSpace[y + 1][x] == 1 && this.mazeSkip.get(x + "," + (y + 1)) == null;
+            if (rightIsEffectiveOpen) {
+                result.set(0, new ArrayList<>(List.of(x + 1, y)));
+            }
+            if (downIsEffectiveOpen) {
+                result.set(1, new ArrayList<>(List.of(x, y + 1)));
+            }
+            return result;
         }
-        //Spawn first mouse at (0,0) TODO: need to check if (0,0) is 0 and throw an error or something.
+    }
+
+    protected void signalFork() {
+        this.availablePaths.release();
+        this.miceManger.execute(new Rat(this.stampId, this));
+        this.stampId += 1;
+    }
+
+    synchronized public int solve() throws InterruptedException {
+        //Spawn first mouse at (0,0).
         this.miceManger = new ThreadPoolExecutor(8, 16, 200, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         this.miceManger.execute(new Rat(this.stampId, this));
         this.stampId += 1;
@@ -68,9 +85,6 @@ public class NMaze {
         }
         this.miceManger.shutdown();
         if (this.miceManger.awaitTermination(500, TimeUnit.MILLISECONDS)) {
-            if (this.isRunningInRealTime){
-                this.externalRunFlag = false;
-            }
             return this.solutions.intValue();
         } else {
             throw new InterruptedException("Threads exceeded timeout.");
@@ -101,28 +115,6 @@ public class NMaze {
             System.out.print("(" + mouseStep.getFirst() + ", " + mouseStep.get(1) + ") -> ");
         });
         System.out.println("X");
-    }
-
-
-    protected  ArrayList<ArrayList<Integer>> peekFrom(int x, int y) {
-        synchronized (this.mazeSkip){
-        ArrayList<ArrayList<Integer>> result = new ArrayList<>(List.of(new ArrayList<>(List.of(0, 0)), new ArrayList<>(List.of(0, 0))));
-        boolean rightIsEffectiveOpen = x + 1 < this.mazeSize && this.mazeSpace[y][x + 1] == 1 && this.mazeSkip.get((x + 1) + "," + y) == null;
-        boolean downIsEffectiveOpen = y + 1 < this.mazeSize && this.mazeSpace[y + 1][x] == 1 && this.mazeSkip.get(x + "," + (y + 1)) == null;
-        if (rightIsEffectiveOpen) {
-            result.set(0, new ArrayList<>(List.of(x + 1, y)));
-        }
-        if (downIsEffectiveOpen) {
-            result.set(1, new ArrayList<>(List.of(x, y + 1)));
-        }
-        return result;}
-    }
-
-
-    protected void signalFork() {
-        this.availablePaths.release();
-        this.miceManger.execute(new Rat(this.stampId, this));
-        this.stampId += 1;
     }
 
 

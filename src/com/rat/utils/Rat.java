@@ -20,7 +20,7 @@ class Rat implements Runnable {
 
     @Override
     public void run() {
-        //Mouse stays alive as long as it keeps expanding its frontier.
+        //Mouse stays alive as long as it keeps expanding its own frontier.
         while (this.maze.mazeFrontier.containsKey(this.mouseId)) {
             try {
                 this.maze.availablePaths.acquire();
@@ -29,8 +29,8 @@ class Rat implements Runnable {
                 this.currentX = current.get(0);
                 this.currentY = current.get(1);
                 String key = current.get(0) + "," + current.get(1);
-
                 this.maze.mazeSkip.put(key, true);
+
                 if (this.maze.isRunningInRealTime) {
                     Platform.runLater(() -> {
                         this.maze.uiNodes[currentY][currentX].setFill(Color.hsb(((this.mouseId + 1) * 15), 1.0, 1.0));
@@ -39,6 +39,7 @@ class Rat implements Runnable {
                         Thread.sleep(this.maze.realTimeStep);
                     }
                 }
+
                 try {
                     this.maze.solutionPaths.get(this.mouseId).add(current);
                 } catch (Exception e) {

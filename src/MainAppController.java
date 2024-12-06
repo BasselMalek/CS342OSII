@@ -20,23 +20,30 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
-
+/*
+TODO:
+    1. Add field for msStep.
+    2. Add Solution results.
+    3. Add validation:
+        a. cannot rerun without clearing.
+        b. type validation on n.
+        c. cannot run on null grid.
+*/
 public class MainAppController {
     @FXML
     private AnchorPane gridPanel;
     @FXML
     private TextField gridSizeInput;
+
     private Integer gridSize = 0;
     private int[][] gridSpace;
-    private Rectangle[][] cells;
+    private Rectangle[][] cells; //Keep reference to each rect to avoid the flattened array returned by .getChildren().
+
     private NMaze maze;
     private Integer msStep = 500;
-    private Boolean isRunning = true;
-    private final BlockingQueue<ArrayList<Integer>> nodeQueue = new LinkedBlockingQueue<>();
 
     public void onReset(ActionEvent actionEvent) {
         gridPanel.getChildren().clear();
-        return;
     }
 
     public void onGenerate(ActionEvent actionEvent) {
@@ -51,10 +58,12 @@ public class MainAppController {
             System.out.println("Grid must be cleared before generating a new one.");
             return;
         }
+
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(3);
         grid.setVgap(3);
+
         for (int i = 0; i < this.gridSize + 1; i++) {
             for (int j = 0; j < this.gridSize + 1; j++) {
                 Rectangle cell = new Rectangle(35, 35);
@@ -78,6 +87,7 @@ public class MainAppController {
                     stack.getChildren().addAll(cell, text);
                     grid.add(stack, j, i);
                 } else {
+                    //Real maze cells.
                     cell.setFill(Color.GAINSBORO);
                     cell.setStroke(Color.BLACK);
                     int finalJ = j - 1;
@@ -105,6 +115,8 @@ public class MainAppController {
 
 
     public void onRun(ActionEvent actionEvent) throws InterruptedException {
+
+        //~'ed array to make it so pressing cells made them dead and not vice versa.
         for (int i = 0; i < this.gridSize; i++) {
             for (int j = 0; j < this.gridSize; j++) {
                 this.gridSpace[j][i] = this.gridSpace[j][i] == 1 ? 0 : 1;
@@ -112,17 +124,17 @@ public class MainAppController {
         }
         this.maze = new NMaze(this.gridSize, this.gridSpace);
         this.maze.setRealTime(true);
-        this.maze.setRealTimeParams(this.msStep, this.isRunning, this.cells);
+        this.maze.setRealTimeParams(this.msStep, this.cells);
         ExecutorService solverThread = Executors.newSingleThreadExecutor();
         solverThread.execute(() -> {
             try {
                 System.out.println("I'm solving");
                 System.out.println(this.maze.solve());
-
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
-        solverThread.shutdown();}
+        solverThread.shutdown();
+    }
 }
 
