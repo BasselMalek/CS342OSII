@@ -25,9 +25,9 @@ TODO:
     1. Add field for msStep -> DONE.
     2. Add Solution results.
     3. Add validation:
-        a. cannot rerun without clearing.
-        b. type validation on n.
-        c. cannot run on null grid.
+        a. cannot rerun without clearing -> DONE.
+        b. type validation on n -> DONE.
+        c. cannot run on null grid -> DONE.
 */
 public class MainAppController {
     @FXML
@@ -42,13 +42,21 @@ public class MainAppController {
     private Rectangle[][] cells; //Keep reference to each rect to avoid the flattened array returned by .getChildren().
 
     private NMaze maze;
+    private Boolean wasRan = false;
+
 
     public void onReset(ActionEvent actionEvent) {
         gridPanel.getChildren().clear();
     }
 
     public void onGenerate(ActionEvent actionEvent) {
-        this.gridSize = Integer.valueOf(gridSizeInput.getText());
+        //Validation
+        if (gridSizeInput.getText().matches("[0-9]*")) {
+            this.gridSize = Integer.valueOf(gridSizeInput.getText());
+        } else {
+            System.out.println("Invalid size.");
+            return;
+        }
         this.gridSpace = new int[this.gridSize][this.gridSize];
         this.cells = new Rectangle[this.gridSize][this.gridSize];
         if (this.gridSize <= 0) {
@@ -117,24 +125,38 @@ public class MainAppController {
 
     public void onRun(ActionEvent actionEvent) throws InterruptedException {
         //~'ed array to make it so pressing cells made them dead and not vice versa.
-        for (int i = 0; i < this.gridSize; i++) {
-            for (int j = 0; j < this.gridSize; j++) {
-                this.gridSpace[j][i] = this.gridSpace[j][i] == 1 ? 0 : 1;
+        if (this.gridPanel.getChildren().isEmpty()) {
+            System.out.println("Cannot run on empty grid.");
+        } else if (this.wasRan) {
+            System.out.println("Cannot run on solved grid.");
+        } else {
+            this.wasRan = true;
+            for (int i = 0; i < this.gridSize; i++) {
+                for (int j = 0; j < this.gridSize; j++) {
+                    this.gridSpace[j][i] = this.gridSpace[j][i] == 1 ? 0 : 1;
+                }
             }
+            this.maze = new NMaze(this.gridSize, this.gridSpace);
+            this.maze.setRealTime(true);
+            if (this.msStep.getText().matches("[0-9]*")) {
+                this.gridSize = Integer.valueOf(gridSizeInput.getText());
+            } else {
+                System.out.println("Invalid size.");
+                return;
+            }
+            this.maze.setRealTimeParams(Integer.valueOf(this.msStep.getText()), this.cells);
+            ExecutorService solverThread = Executors.newSingleThreadExecutor();
+            solverThread.execute(() -> {
+                try {
+                    System.out.println("I'm solving");
+                    System.out.println(this.maze.solve());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            solverThread.shutdown();
+            maze.printSolutionPaths();
         }
-        this.maze = new NMaze(this.gridSize, this.gridSpace);
-        this.maze.setRealTime(true);
-        this.maze.setRealTimeParams(Integer.valueOf(this.msStep.getText()), this.cells);
-        ExecutorService solverThread = Executors.newSingleThreadExecutor();
-        solverThread.execute(() -> {
-            try {
-                System.out.println("I'm solving");
-                System.out.println(this.maze.solve());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        solverThread.shutdown();
     }
 }
 

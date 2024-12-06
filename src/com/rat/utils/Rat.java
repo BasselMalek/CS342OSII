@@ -43,6 +43,7 @@ class Rat implements Runnable {
                 try {
                     this.maze.solutionPaths.get(this.mouseId).add(current);
                 } catch (Exception e) {
+                    this.maze.solutionPaths.ensureCapacity(this.mouseId+10);
                     this.maze.solutionPaths.add(this.mouseId, new ArrayList<>());
                     this.maze.solutionPaths.get(this.mouseId).add(current);
                 }

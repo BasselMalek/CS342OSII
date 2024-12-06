@@ -15,7 +15,7 @@ public class MainApp extends Application {
         Scene scene = new Scene(root,  900, 600);
         stage.setTitle("Mouse Maze");
         stage.setScene(scene);
-        stage.setResizable(false);
+//        stage.setResizable(false);
         stage.show();
 
     }
