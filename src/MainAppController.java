@@ -1,6 +1,10 @@
+import com.rat.utils.NMaze;
+import javafx.application.Platform;
+import javafx.collections.ObservableArrayBase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
@@ -9,6 +13,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import org.w3c.dom.css.Rect;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.*;
 
 
 public class MainAppController {
@@ -17,6 +27,12 @@ public class MainAppController {
     @FXML
     private TextField gridSizeInput;
     private Integer gridSize = 0;
+    private int[][] gridSpace;
+    private Rectangle[][] cells;
+    private NMaze maze;
+    private Integer msStep = 500;
+    private Boolean isRunning = true;
+    private final BlockingQueue<ArrayList<Integer>> nodeQueue = new LinkedBlockingQueue<>();
 
     public void onReset(ActionEvent actionEvent) {
         gridPanel.getChildren().clear();
@@ -25,6 +41,8 @@ public class MainAppController {
 
     public void onGenerate(ActionEvent actionEvent) {
         this.gridSize = Integer.valueOf(gridSizeInput.getText());
+        this.gridSpace = new int[this.gridSize][this.gridSize];
+        this.cells = new Rectangle[this.gridSize][this.gridSize];
         if (this.gridSize <= 0) {
             System.out.println("Grid cannot be 0x0.");
             return;
@@ -44,24 +62,37 @@ public class MainAppController {
                 if ((i == 0 && j == 0)) {
                     cell.setFill(Color.TRANSPARENT);
                     cell.setStroke(Color.TRANSPARENT);
+                    grid.add(cell, j, i);
                 } else if (i == 0) {
                     cell.setFill(Color.TRANSPARENT);
                     cell.setStroke(Color.TRANSPARENT);
-                    Text text = new Text (String.valueOf((char)('A'+j-1)));
+                    Text text = new Text(String.valueOf((char) ('A' + j - 1)));
                     StackPane stack = new StackPane();
                     stack.getChildren().addAll(cell, text);
                     grid.add(stack, j, i);
-                } else if (j==0) {
+                } else if (j == 0) {
                     cell.setFill(Color.TRANSPARENT);
                     cell.setStroke(Color.TRANSPARENT);
-                    Text text = new Text (String.valueOf(i));
+                    Text text = new Text(String.valueOf(i));
                     StackPane stack = new StackPane();
                     stack.getChildren().addAll(cell, text);
                     grid.add(stack, j, i);
                 } else {
-                    cell.setFill(Color.DARKGREY);
+                    cell.setFill(Color.GAINSBORO);
                     cell.setStroke(Color.BLACK);
-                grid.add(cell, j, i);
+                    int finalJ = j - 1;
+                    int finalI = i - 1;
+                    cell.setOnMouseClicked((event) -> {
+                        if (this.gridSpace[finalJ][finalI] == 0) {
+                            this.gridSpace[finalJ][finalI] = 1;
+                            cell.setFill(Color.DARKGREY);
+                        } else {
+                            this.gridSpace[finalJ][finalI] = 0;
+                            cell.setFill(Color.GAINSBORO);
+                        }
+                    });
+                    grid.add(cell, j, i);
+                    this.cells[j - 1][i - 1] = cell;
                 }
             }
         }
@@ -69,18 +100,64 @@ public class MainAppController {
         AnchorPane.setBottomAnchor(grid, 0.0);
         AnchorPane.setLeftAnchor(grid, 0.0);
         AnchorPane.setRightAnchor(grid, 0.0);
-        gridPanel.getChildren().add(grid);
+        this.gridPanel.getChildren().add(grid);
     }
 
 
     public void onRun(ActionEvent actionEvent) throws InterruptedException {
-        GridPane grid = (GridPane) this.gridPanel.getChildren().getFirst();
-        for (int i = 1; i<this.gridSize+1;i++){
-            for (int j = 0; j < this.gridSize*2; j++) {
-                if (grid.getChildren().get(i*this.gridSize+j).getClass() == Rectangle.class){
-                Rectangle r = (Rectangle) grid.getChildren().get(i*this.gridSize+j);
-                r.setFill(Color.LAVENDER);}
+        for (int i = 0; i < this.gridSize; i++) {
+            for (int j = 0; j < this.gridSize; j++) {
+                this.gridSpace[j][i] = this.gridSpace[j][i] == 1 ? 0 : 1;
             }
         }
+        this.maze = new NMaze(this.gridSize, this.gridSpace);
+        this.maze.setRealTime(true);
+        this.maze.setRealTimeParams(this.msStep, this.isRunning, this.cells);
+        ExecutorService solverThread = Executors.newSingleThreadExecutor();
+        solverThread.execute(() -> {
+            try {
+                System.out.println("I'm solving");
+                System.out.println(this.maze.solve());
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+//        solverThread.execute(() -> {
+//            while (this.isRunning) {
+//                ArrayList<Integer> node = null;
+//                try {
+//                    node = this.nodeQueue.poll(this.msStep, TimeUnit.MILLISECONDS);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                if (node == null) {
+//                    break;
+//                }
+//                GridPane gridPane = (GridPane) this.gridPanel.getChildren().getFirst();
+//                ArrayList<Integer> finalNode = node;
+//                Platform.runLater(() -> {
+//                    this.cells[finalNode.get(2)][finalNode.get(1)].setFill(Color.hsb((finalNode.getFirst() + 1) * 15, 1.0, 1.0));
+//                });
+//                try {
+//                    Thread.sleep(3000);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        });
+        solverThread.shutdown();
+
+//            Integer adjustedX = node.get(1) + 1;
+//            Integer adjustedY = (node.get(2) + 1) * this.gridSize;
+//            try {
+//                ((Rectangle) gridPane.getChildren().get(adjustedY + adjustedX + lastJump)).setFill(Color.hsb((node.getFirst() + 1) * 15, 1.0, 1.0));
+//            } catch (Exception e) {
+//                lastJump++;
+//                ((Rectangle) gridPane.getChildren().get(adjustedY + adjustedX + lastJump)).setFill(Color.hsb((node.getFirst() + 1) * 15, 1.0, 1.0));
+//            }
+
+//            System.out.println(adjustedX.toString() + String.valueOf((char) ('A' + adjustedY - 1)));
     }
 }
+

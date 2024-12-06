@@ -1,5 +1,7 @@
 package com.rat.utils;
 
+import javafx.scene.shape.Rectangle;
+
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +23,12 @@ public class NMaze {
     int mouseKing;
     ArrayList<ArrayList<ArrayList<Integer>>> solutionPaths;
 
+    //Live-update.
+    Boolean isRunningInRealTime;
+    Rectangle[][] uiNodes;
+    Integer realTimeStep;
+    Boolean externalRunFlag;
+    BlockingQueue<ArrayList<Integer>> externalNodeDelivery;
 
     public NMaze(int size, int[][] physical) {
         this.mazeSize = size;
@@ -37,17 +45,32 @@ public class NMaze {
         this.mouseKing = -1;
     }
 
+    public void setRealTime(Boolean setVal){
+        this.isRunningInRealTime = setVal;
+    }
+    public void setRealTimeParams(Integer realTimeStep, Boolean runFlag, Rectangle[][] uiNodes){
+        this.realTimeStep = realTimeStep;
+        this.externalRunFlag = runFlag;
+        this.uiNodes = uiNodes;
+    }
+
     synchronized public int solve() throws InterruptedException {
+        if (this.isRunningInRealTime){
+            this.externalRunFlag = true;
+        }
         //Spawn first mouse at (0,0) TODO: need to check if (0,0) is 0 and throw an error or something.
         this.miceManger = new ThreadPoolExecutor(8, 16, 200, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         this.miceManger.submit(new Rat(this.stampId, this));
         this.stampId += 1;
 
         while (this.miceManger.getActiveCount() > 0) {
-            Thread.sleep(3);
+            Thread.sleep(5);
         }
         this.miceManger.shutdown();
         if (this.miceManger.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+            if (this.isRunningInRealTime){
+                this.externalRunFlag = false;
+            }
             return this.solutions.intValue();
         } else {
             throw new InterruptedException("Threads exceeded timeout.");

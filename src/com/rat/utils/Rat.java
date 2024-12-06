@@ -1,10 +1,14 @@
 package com.rat.utils;
 
+import javafx.application.Platform;
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
-public class Rat implements Callable<int[]> {
+class Rat implements Callable<int[]> {
     int mouseId;
     int currentX, currentY;
     NMaze maze;
@@ -26,6 +30,14 @@ public class Rat implements Callable<int[]> {
             String key = current.get(0) + "," + current.get(1);
 
             this.maze.mazeSkip.put(key, true);
+            if (this.maze.isRunningInRealTime) {
+                Platform.runLater(() -> {
+                    this.maze.uiNodes[currentY][currentX].setFill(Color.hsb(((this.mouseId + 1) * 15), 1.0, 1.0));
+                });
+                if (this.maze.realTimeStep > 0) {
+                    Thread.sleep(this.maze.realTimeStep);
+                }
+            }
             try {
                 this.maze.solutionPaths.get(this.mouseId).add(current);
             } catch (Exception e) {
@@ -35,7 +47,7 @@ public class Rat implements Callable<int[]> {
             ArrayList<ArrayList<Integer>> peekResult = this.maze.peekFrom(current.get(0), current.get(1));
 //            System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
             if (peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {
-                if (this.currentX == this.maze.mazeSize -1 && this.currentY == this.maze.mazeSize -1){
+                if (this.currentX == this.maze.mazeSize - 1 && this.currentY == this.maze.mazeSize - 1) {
                     this.maze.solutions.incrementAndGet();
                     this.maze.mouseKing = this.mouseId;
                 }
@@ -52,6 +64,7 @@ public class Rat implements Callable<int[]> {
                 this.maze.availablePaths.release();
             }
         }
+
         return new int[0];
     }
 }
