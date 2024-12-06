@@ -29,42 +29,41 @@ class Rat implements Runnable {
                 this.currentX = current.get(0);
                 this.currentY = current.get(1);
                 String key = current.get(0) + "," + current.get(1);
-                this.maze.mazeSkip.put(key, true);
-
-                if (this.maze.isRunningInRealTime) {
-                    Platform.runLater(() -> {
-                        this.maze.uiNodes[currentY][currentX].setFill(Color.hsb(((this.mouseId + 1) * 15), 1.0, 1.0));
-                    });
-                    if (this.maze.realTimeStep > 0) {
-                        Thread.sleep(this.maze.realTimeStep);
+                if (this.maze.isRunningInRealTime){
+                    if (this.maze.mazeSkip.get(key)!=null){
+                        break;
                     }
                 }
+                this.maze.mazeSkip.put(key, true);
+
 
                 try {
                     this.maze.solutionPaths.get(this.mouseId).add(current);
                 } catch (Exception e) {
-                    this.maze.solutionPaths.ensureCapacity(this.mouseId+10);
-                    this.maze.solutionPaths.add(this.mouseId, new ArrayList<>());
+                    this.maze.solutionPaths.add(this.mouseId, new ArrayList<>(30));
                     this.maze.solutionPaths.get(this.mouseId).add(current);
                 }
+
                 ArrayList<ArrayList<Integer>> peekResult = this.maze.peekFrom(current.get(0), current.get(1));
-//            System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
+//              System.out.println("I'm mouse:" + this.mouseId + " and I'm at (" + current.get(0) + ", " + current.get(1) + ").");
                 if (peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {
                     if (this.currentX == this.maze.mazeSize - 1 && this.currentY == this.maze.mazeSize - 1) {
                         this.maze.solutions.incrementAndGet();
                         this.maze.mouseKing = this.mouseId;
                     }
+                    this.maze.drawAndSleep(this.mouseId, currentX, currentY, 0);
 //                System.out.println("Dead-end at (" + current.get(0) + ", " + current.get(1) + ").");
                 } else if (!peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && !peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {
 //                System.out.println("Fork at (" + current.get(0) + ", " + current.get(1) + ").");
                     maze.mazeFrontier.put(this.mouseId, peekResult.get(0));
-                    maze.mazeFrontier.put(this.maze.stampId, peekResult.get(1));
-                    this.maze.availablePaths.release();
+                    maze.mazeFrontier.put(this.maze.stampId.get(), peekResult.get(1));
                     this.maze.signalFork();
+                    this.maze.availablePaths.release();
                 } else {
                     maze.mazeFrontier.put(this.mouseId, !peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) ? peekResult.get(0) : peekResult.get(1));
                     this.maze.availablePaths.release();
                 }
+                    this.maze.drawAndSleep(this.mouseId, currentX, currentY, this.maze.realTimeStep);
             } catch (InterruptedException e) {
                 throw new RuntimeException("Rat killed before reaching dead-end.");
             }

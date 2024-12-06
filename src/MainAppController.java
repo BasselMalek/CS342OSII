@@ -1,23 +1,15 @@
 import com.rat.utils.NMaze;
-import javafx.application.Platform;
-import javafx.collections.ObservableArrayBase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.TextField;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import org.w3c.dom.css.Rect;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.*;
 
 /*
@@ -36,6 +28,10 @@ public class MainAppController {
     private TextField gridSizeInput;
     @FXML
     private TextField msStep;
+    @FXML
+    private Rectangle mouseKing;
+    @FXML
+    private TextField possibleSolutions;
 
     private Integer gridSize = 0;
     private int[][] gridSpace;
@@ -45,8 +41,10 @@ public class MainAppController {
     private Boolean wasRan = false;
 
 
-    public void onReset(ActionEvent actionEvent) {
+    public void onReset() {
         gridPanel.getChildren().clear();
+        mouseKing.setFill(Color.GAINSBORO);
+        this.wasRan = false;
     }
 
     public void onGenerate(ActionEvent actionEvent) {
@@ -123,7 +121,7 @@ public class MainAppController {
     }
 
 
-    public void onRun(ActionEvent actionEvent) throws InterruptedException {
+    public void onRun(ActionEvent actionEvent) {
         //~'ed array to make it so pressing cells made them dead and not vice versa.
         if (this.gridPanel.getChildren().isEmpty()) {
             System.out.println("Cannot run on empty grid.");
@@ -149,13 +147,15 @@ public class MainAppController {
             solverThread.execute(() -> {
                 try {
                     System.out.println("I'm solving");
-                    System.out.println(this.maze.solve());
+                    this.maze.solve();
+                    this.possibleSolutions.setText(this.maze.getSolutions()>0?"1":"0");
+                    this.mouseKing.setFill(Color.hsb(((this.maze.getWinner() + 1) * 15), 1.0 / (this.maze.getWinner() % 2 + 1), 1.0));
+                    this.maze.printSolutionPaths();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             });
             solverThread.shutdown();
-            maze.printSolutionPaths();
         }
     }
 }

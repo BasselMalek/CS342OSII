@@ -12,7 +12,7 @@ public class MainApp extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("resources/MainApp.fxml"));
         Parent root = loader.load();
-        Scene scene = new Scene(root,  900, 600);
+        Scene scene = new Scene(root,  500, 700);
         stage.setTitle("Mouse Maze");
         stage.setScene(scene);
 //        stage.setResizable(false);
