@@ -16,7 +16,7 @@ public class NMaze {
     int stampId;
     ThreadPoolExecutor miceManger;
     ConcurrentHashMap<Integer, ArrayList<Integer>> mazeFrontier;
-    ConcurrentHashMap<String, Boolean> mazeSkip;
+    final ConcurrentHashMap<String, Boolean> mazeSkip;
 
     //Solution Storage.
     AtomicInteger solutions;
@@ -60,7 +60,7 @@ public class NMaze {
         }
         //Spawn first mouse at (0,0) TODO: need to check if (0,0) is 0 and throw an error or something.
         this.miceManger = new ThreadPoolExecutor(8, 16, 200, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
-        this.miceManger.submit(new Rat(this.stampId, this));
+        this.miceManger.execute(new Rat(this.stampId, this));
         this.stampId += 1;
 
         while (this.miceManger.getActiveCount() > 0) {
@@ -121,7 +121,7 @@ public class NMaze {
 
     protected void signalFork() {
         this.availablePaths.release();
-        this.miceManger.submit(new Rat(this.stampId, this));
+        this.miceManger.execute(new Rat(this.stampId, this));
         this.stampId += 1;
     }
 

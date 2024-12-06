@@ -123,41 +123,6 @@ public class MainAppController {
                 throw new RuntimeException(e);
             }
         });
-//        solverThread.execute(() -> {
-//            while (this.isRunning) {
-//                ArrayList<Integer> node = null;
-//                try {
-//                    node = this.nodeQueue.poll(this.msStep, TimeUnit.MILLISECONDS);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                if (node == null) {
-//                    break;
-//                }
-//                GridPane gridPane = (GridPane) this.gridPanel.getChildren().getFirst();
-//                ArrayList<Integer> finalNode = node;
-//                Platform.runLater(() -> {
-//                    this.cells[finalNode.get(2)][finalNode.get(1)].setFill(Color.hsb((finalNode.getFirst() + 1) * 15, 1.0, 1.0));
-//                });
-//                try {
-//                    Thread.sleep(3000);
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        });
-        solverThread.shutdown();
-
-//            Integer adjustedX = node.get(1) + 1;
-//            Integer adjustedY = (node.get(2) + 1) * this.gridSize;
-//            try {
-//                ((Rectangle) gridPane.getChildren().get(adjustedY + adjustedX + lastJump)).setFill(Color.hsb((node.getFirst() + 1) * 15, 1.0, 1.0));
-//            } catch (Exception e) {
-//                lastJump++;
-//                ((Rectangle) gridPane.getChildren().get(adjustedY + adjustedX + lastJump)).setFill(Color.hsb((node.getFirst() + 1) * 15, 1.0, 1.0));
-//            }
-
-//            System.out.println(adjustedX.toString() + String.valueOf((char) ('A' + adjustedY - 1)));
-    }
+        solverThread.shutdown();}
 }
 
