@@ -14,6 +14,7 @@ class MazeTest {
     void testOneNOpen(){
         int[][] maze = {{1}};
         NMaze mazeSolver = new NMaze(1, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -48,6 +49,7 @@ class MazeTest {
                 {0, 0, 1, 1, 1, 1, 1, 1}
         };
         NMaze mazeSolver = new NMaze(8, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -67,6 +69,7 @@ class MazeTest {
                 {0, 0, 0, 0, 1, 1}
         };
         NMaze mazeSolver = new NMaze(6, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -85,6 +88,7 @@ class MazeTest {
                 {0, 0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(5, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(0, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -105,6 +109,7 @@ class MazeTest {
                 {1, 1, 1, 1, 1, 1, 1}
         };
         NMaze mazeSolver = new NMaze(7, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -124,6 +129,7 @@ class MazeTest {
                 {0, 0, 0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(6, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(0, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -142,6 +148,7 @@ class MazeTest {
                 {0, 0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(5, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -161,6 +168,7 @@ class MazeTest {
                 {0, 0, 0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(6, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -177,6 +185,7 @@ class MazeTest {
                 {0, 1, 1}
         };
         NMaze mazeSolver = new NMaze(3, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -194,6 +203,7 @@ class MazeTest {
                 {0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(4, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(0, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -211,6 +221,7 @@ class MazeTest {
                 {0, 0, 0, 0}
         };
         NMaze mazeSolver = new NMaze(4, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(0, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -234,6 +245,7 @@ class MazeTest {
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
         };
         NMaze mazeSolver = new NMaze(10, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();
@@ -252,6 +264,7 @@ class MazeTest {
                 {1, 1, 1, 1, 1}
         };
         NMaze mazeSolver = new NMaze(5, maze);
+        mazeSolver.setRealTime(false);
         assertDoesNotThrow(() -> {
             assertEquals(1, mazeSolver.solve());
             ArrayList<ArrayList<Integer>> solutionPath = mazeSolver.getSolutionPath();

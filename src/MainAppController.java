@@ -22,7 +22,7 @@ import java.util.concurrent.*;
 
 /*
 TODO:
-    1. Add field for msStep.
+    1. Add field for msStep -> DONE.
     2. Add Solution results.
     3. Add validation:
         a. cannot rerun without clearing.
@@ -34,13 +34,14 @@ public class MainAppController {
     private AnchorPane gridPanel;
     @FXML
     private TextField gridSizeInput;
+    @FXML
+    private TextField msStep;
 
     private Integer gridSize = 0;
     private int[][] gridSpace;
     private Rectangle[][] cells; //Keep reference to each rect to avoid the flattened array returned by .getChildren().
 
     private NMaze maze;
-    private Integer msStep = 500;
 
     public void onReset(ActionEvent actionEvent) {
         gridPanel.getChildren().clear();
@@ -115,7 +116,6 @@ public class MainAppController {
 
 
     public void onRun(ActionEvent actionEvent) throws InterruptedException {
-
         //~'ed array to make it so pressing cells made them dead and not vice versa.
         for (int i = 0; i < this.gridSize; i++) {
             for (int j = 0; j < this.gridSize; j++) {
@@ -124,7 +124,7 @@ public class MainAppController {
         }
         this.maze = new NMaze(this.gridSize, this.gridSpace);
         this.maze.setRealTime(true);
-        this.maze.setRealTimeParams(this.msStep, this.cells);
+        this.maze.setRealTimeParams(Integer.valueOf(this.msStep.getText()), this.cells);
         ExecutorService solverThread = Executors.newSingleThreadExecutor();
         solverThread.execute(() -> {
             try {
