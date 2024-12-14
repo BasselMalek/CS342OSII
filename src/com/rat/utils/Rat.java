@@ -51,7 +51,7 @@ class Rat implements Runnable {
                         this.maze.solutions.incrementAndGet();
                         this.maze.mouseKing = this.mouseId;
                     }
-                    this.maze.drawAndSleep(this.mouseId, currentX, currentY, 0);
+                    this.maze.drawAndSleep(this.mouseId, currentX, currentY);
 //                System.out.println("Dead-end at (" + current.get(0) + ", " + current.get(1) + ").");
                 } else if (!peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) && !peekResult.get(1).equals(new ArrayList<Integer>(List.of(0, 0)))) {
 //                System.out.println("Fork at (" + current.get(0) + ", " + current.get(1) + ").");
@@ -63,7 +63,7 @@ class Rat implements Runnable {
                     maze.mazeFrontier.put(this.mouseId, !peekResult.get(0).equals(new ArrayList<Integer>(List.of(0, 0))) ? peekResult.get(0) : peekResult.get(1));
                     this.maze.availablePaths.release();
                 }
-                    this.maze.drawAndSleep(this.mouseId, currentX, currentY, this.maze.realTimeStep);
+                    this.maze.drawAndSleep(this.mouseId, currentX, currentY);
             } catch (InterruptedException e) {
                 throw new RuntimeException("Rat killed before reaching dead-end.");
             }

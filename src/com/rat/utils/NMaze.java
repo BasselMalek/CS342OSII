@@ -101,10 +101,10 @@ public class NMaze {
         return this.mouseKing == -1 ? new ArrayList<>() : this.solutionPaths.get(this.mouseKing);
     }
 
-    void drawAndSleep(Integer id, Integer currentX, Integer currentY, Integer duration) throws InterruptedException {
+    void drawAndSleep(Integer id, Integer currentX, Integer currentY) throws InterruptedException {
         if (this.isRunningInRealTime) {
             Platform.runLater(() -> {
-                this.uiNodes[currentY][currentX].setFill(Color.hsb(((id + 1) * 15), 1.0 / (id % 2 + 1), 1.0));
+                this.uiNodes[currentY][currentX].setFill(Color.hsb(((id + 1) * 15), 1.0 / (id % 2 + 1), 1.0 / (id % 2 + 1)));
             });
             if (this.realTimeStep > 0) {
                 Thread.sleep(this.realTimeStep);
