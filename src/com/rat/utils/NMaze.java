@@ -60,13 +60,13 @@ public class NMaze {
     protected ArrayList<ArrayList<Integer>> peekFrom(int x, int y) throws InterruptedException {
         synchronized (this.mazeSkip) {
             ArrayList<ArrayList<Integer>> result = new ArrayList<>(List.of(new ArrayList<>(List.of(0, 0)), new ArrayList<>(List.of(0, 0))));
-            boolean rightIsEffectiveOpen = x + 1 < this.mazeSize && this.mazeSpace[y][x + 1] == 1 && this.mazeSkip.get((x + 1) + "," + y) == null;
-            boolean downIsEffectiveOpen = y + 1 < this.mazeSize && this.mazeSpace[y + 1][x] == 1 && this.mazeSkip.get(x + "," + (y + 1)) == null;
+            boolean rightIsEffectiveOpen = x + 1 < this.mazeSize && this.mazeSpace[y][x + 1] == 1 && this.mazeSkip.get((x + 1) + ", " + y) == null;
+            boolean downIsEffectiveOpen = y + 1 < this.mazeSize && this.mazeSpace[y + 1][x] == 1 && this.mazeSkip.get(x + ", " + (y + 1)) == null;
             if (rightIsEffectiveOpen) {
-                result.set(0, new ArrayList<>(List.of(x + 1, y)));
+                result.set(1, new ArrayList<>(List.of(x + 1, y)));
             }
             if (downIsEffectiveOpen) {
-                result.set(1, new ArrayList<>(List.of(x, y + 1)));
+                result.set(0, new ArrayList<>(List.of(x, y + 1)));
             }
             return result;
         }
@@ -104,7 +104,7 @@ public class NMaze {
     void drawAndSleep(Integer id, Integer currentX, Integer currentY) throws InterruptedException {
         if (this.isRunningInRealTime) {
             Platform.runLater(() -> {
-                this.uiNodes[currentY][currentX].setFill(Color.hsb(((id + 1) * 15), 1.0 / (id % 2 + 1), 1.0 / (id % 2 + 1)));
+                this.uiNodes[currentY][currentX].setFill(Color.hsb(((id + 1) * 15), (id%2==0)?1.0:0.5, 1.0));
             });
             if (this.realTimeStep > 0) {
                 Thread.sleep(this.realTimeStep);
