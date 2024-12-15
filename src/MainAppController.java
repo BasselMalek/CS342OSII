@@ -44,6 +44,7 @@ public class MainAppController {
     public void onReset() {
         gridPanel.getChildren().clear();
         mouseKing.setFill(Color.GAINSBORO);
+        possibleSolutions.setText("0");
         this.wasRan = false;
     }
 
@@ -149,7 +150,7 @@ public class MainAppController {
                     System.out.println("I'm solving");
                     this.maze.solve();
                     this.possibleSolutions.setText(this.maze.getSolutions()>0?"1":"0");
-                    this.mouseKing.setFill(Color.hsb(((this.maze.getWinner() + 1) * 15), 1.0 / (this.maze.getWinner() % 2 + 1), 1.0));
+                    this.mouseKing.setFill(Color.hsb(((this.maze.getWinner() + 1) * 15), (this.maze.getWinner()%2==0)?1.0:0.5, 1.0));
                     this.maze.printSolutionPaths();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
